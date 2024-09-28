@@ -8,9 +8,12 @@ class Money(ABC):
         self.currency = currency
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, type(self)):
+        if not isinstance(other, Money) or self.currency != other.get_currency():
             return NotImplemented
         return self.amount == other.amount
+
+    def times(self, multipier: int) -> "Money":
+        return Money(self.amount * multipier, self.currency)
 
     @classmethod
     def dollar(cls, amount: int, currency: str) -> "Dollar":
@@ -24,13 +27,7 @@ class Money(ABC):
         return self.currency
 
 
-class Dollar(Money):
-
-    def times(self, multipier: int) -> Money:
-        return Dollar(self.amount * multipier, self.currency)
+class Dollar(Money): ...
 
 
-class Frank(Money):
-
-    def times(self, multipier: int) -> Money:
-        return Frank(self.amount * multipier, self.currency)
+class Frank(Money): ...
