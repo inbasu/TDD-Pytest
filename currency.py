@@ -9,12 +9,20 @@ class Money(ABC):
             return NotImplemented
         return self.amount == other.amount
 
+    @classmethod
+    def dollar(cls, amount: int) -> "Dollar":
+        return Dollar(amount)
+
+    @classmethod
+    def frank(cls, amount: int) -> "Frank":
+        return Frank(amount)
+
 
 class Dollar(Money):
     def __init__(self, amount: int) -> None:
         self.amount = amount
 
-    def times(self, multipier: int) -> "Dollar":
+    def times(self, multipier: int) -> Money:
         return Dollar(self.amount * multipier)
 
 
@@ -22,5 +30,5 @@ class Frank(Money):
     def __init__(self, amount: int) -> None:
         self.amount = amount
 
-    def times(self, multipier: int) -> "Frank":
+    def times(self, multipier: int) -> Money:
         return Frank(self.amount * multipier)
