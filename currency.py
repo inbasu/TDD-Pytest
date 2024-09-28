@@ -2,7 +2,10 @@ from abc import ABC
 
 
 class Money(ABC):
-    amount: int
+
+    def __init__(self, amount: int, currency: str) -> None:
+        self.amount = amount
+        self.currency = currency
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
@@ -10,25 +13,24 @@ class Money(ABC):
         return self.amount == other.amount
 
     @classmethod
-    def dollar(cls, amount: int) -> "Dollar":
-        return Dollar(amount)
+    def dollar(cls, amount: int, currency: str) -> "Dollar":
+        return Dollar(amount, currency)
 
     @classmethod
-    def frank(cls, amount: int) -> "Frank":
-        return Frank(amount)
+    def frank(cls, amount: int, currency: str) -> "Frank":
+        return Frank(amount, currency)
+
+    def get_currency(self) -> str:
+        return self.currency
 
 
 class Dollar(Money):
-    def __init__(self, amount: int) -> None:
-        self.amount = amount
 
     def times(self, multipier: int) -> Money:
-        return Dollar(self.amount * multipier)
+        return Dollar(self.amount * multipier, self.currency)
 
 
 class Frank(Money):
-    def __init__(self, amount: int) -> None:
-        self.amount = amount
 
     def times(self, multipier: int) -> Money:
-        return Frank(self.amount * multipier)
+        return Frank(self.amount * multipier, self.currency)
