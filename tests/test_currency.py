@@ -1,4 +1,4 @@
-from currency import Money
+from currency import Bank, Expression, Money
 
 
 def test_dollar_times() -> None:
@@ -18,5 +18,13 @@ def test_frank_times() -> None:
 
 
 def test_currency() -> None:
-    assert Money.frank(1).get_currency() == "CHF"
-    assert Money.dollar(1).get_currency() == "USD"
+    """Property was disabeled in python"""
+    assert Money.frank(1).currency == "CHF"
+    assert Money.dollar(1).currency == "USD"
+
+
+def test_simple_add() -> None:
+    sum: Expression = Money.dollar(5) + Money.dollar(5)
+    bank = Bank()
+    reducer = bank.reducer(sum)
+    assert Money.dollar(10) == reducer
