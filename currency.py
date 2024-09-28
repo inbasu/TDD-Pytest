@@ -1,14 +1,10 @@
-from abc import ABCMeta
-
-
-class Bank:
-
-    def reducer(self, expression: "Expression") -> "Money":
-        return Money.dollar(10)
+from abc import ABCMeta, abstractmethod
 
 
 class Expression(metaclass=ABCMeta):
-    pass
+    @abstractmethod
+    def reduce(self, to: str) -> "Money":
+        pass
 
 
 class Money(Expression):
@@ -20,12 +16,15 @@ class Money(Expression):
     def __add__(self, other: object) -> Expression:
         if not isinstance(other, Money):
             return NotImplemented
-        return Money(self.amount + other.amount, self.currency)
+        return Sum(self, other)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Money) or self.currency != other.currency:
             return NotImplemented
         return self.amount == other.amount
+
+    def reduce(self, to: str) -> "Money":
+        return self
 
     def times(self, multipier: int) -> "Money":
         return Money(self.amount * multipier, self.currency)
@@ -37,3 +36,20 @@ class Money(Expression):
     @classmethod
     def frank(cls, amount: int) -> "Money":
         return Money(amount, "CHF")
+
+
+class Sum(Expression):
+    def __init__(self, augend: Money, addend: Money) -> None:
+        self.augend = augend
+        self.addend = addend
+
+    def reduce(self, to: str) -> Money:
+        amount: int = self.augend.amount + self.addend.amount
+        return Money(amount, to)
+
+
+class Bank:
+    def reduce(self, expression: Expression, to: str) -> Money:
+        if isinstance(expression, Money):
+            return expression
+        return expression.reduce(to)

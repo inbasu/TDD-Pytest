@@ -1,4 +1,4 @@
-from currency import Bank, Expression, Money
+from currency import Bank, Expression, Money, Sum
 
 
 def test_dollar_times() -> None:
@@ -26,5 +26,18 @@ def test_currency() -> None:
 def test_simple_add() -> None:
     sum: Expression = Money.dollar(5) + Money.dollar(5)
     bank = Bank()
-    reducer = bank.reducer(sum)
+    reducer = bank.reduce(sum, "USD")
     assert Money.dollar(10) == reducer
+
+
+def test_reduce_sum() -> None:
+    sum: Expression = Sum(Money.dollar(1), Money.dollar(1))
+    bank = Bank()
+    reducer = bank.reduce(sum, "USD")
+    assert Money.dollar(2) == reducer
+
+
+def test_reduce_money() -> None:
+    bank = Bank()
+    reduced = bank.reduce(Money.dollar(1), "USD")
+    assert reduced == Money.dollar(1)
