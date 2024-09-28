@@ -16,18 +16,12 @@ class Money(ABC):
         return Money(self.amount * multipier, self.currency)
 
     @classmethod
-    def dollar(cls, amount: int, currency: str) -> "Dollar":
-        return Dollar(amount, currency)
+    def dollar(cls, amount: int) -> "Money":
+        return Money(amount, "USD")
 
     @classmethod
-    def frank(cls, amount: int, currency: str) -> "Frank":
-        return Frank(amount, currency)
+    def frank(cls, amount: int) -> "Money":
+        return Money(amount, "CHF")
 
     def get_currency(self) -> str:
         return self.currency
-
-
-class Dollar(Money): ...
-
-
-class Frank(Money): ...
