@@ -1,15 +1,16 @@
 from abc import ABCMeta, abstractmethod
+from dataclasses import dataclass
 
 
 class Expression(metaclass=ABCMeta):
     @abstractmethod
-    def reduce(self, to: str) -> "Money":
+    def reduce(self, bank: "Bank", to: str) -> "Money":
         pass
 
 
 class Money(Expression):
 
-    def __init__(self, amount: int, currency: str) -> None:
+    def __init__(self, amount: float, currency: str) -> None:
         self.amount = amount
         self.currency = currency
 
@@ -23,18 +24,19 @@ class Money(Expression):
             return NotImplemented
         return self.amount == other.amount
 
-    def reduce(self, to: str) -> "Money":
-        return self
+    def reduce(self, bank: "Bank", to: str) -> "Money":
+        rate = bank.rate(self.currency, to)
+        return Money(self.amount / rate, to)
 
     def times(self, multipier: int) -> "Money":
         return Money(self.amount * multipier, self.currency)
 
     @classmethod
-    def dollar(cls, amount: int) -> "Money":
+    def dollar(cls, amount: float) -> "Money":
         return Money(amount, "USD")
 
     @classmethod
-    def frank(cls, amount: int) -> "Money":
+    def frank(cls, amount: float) -> "Money":
         return Money(amount, "CHF")
 
 
@@ -43,13 +45,35 @@ class Sum(Expression):
         self.augend = augend
         self.addend = addend
 
-    def reduce(self, to: str) -> Money:
-        amount: int = self.augend.amount + self.addend.amount
+    def reduce(self, bank: "Bank", to: str) -> Money:
+        amount: float = self.augend.amount + self.addend.amount
         return Money(amount, to)
 
 
+@dataclass
+class Pair:
+    base: str
+    to: str
+
+    def __hash__(self) -> int:
+        return 0
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Pair):
+            return NotImplemented
+        return self.base == other.base and self.to == other.to
+
+
 class Bank:
+    rates: dict[Pair, int] = {}
+
     def reduce(self, expression: Expression, to: str) -> Money:
-        if isinstance(expression, Money):
-            return expression
-        return expression.reduce(to)
+        return expression.reduce(self, to)
+
+    def add_rate(self, base: str, to: str, rate: int) -> None:
+        self.rates[Pair(base, to)] = rate
+
+    def rate(self, base: str, to: str) -> int:
+        if base == to:
+            return 1
+        return self.rates.get(Pair(base, to), -1)

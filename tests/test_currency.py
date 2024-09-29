@@ -1,4 +1,4 @@
-from currency import Bank, Expression, Money, Sum
+from currency import Bank, Expression, Money, Pair, Sum
 
 
 def test_dollar_times() -> None:
@@ -40,4 +40,19 @@ def test_reduce_sum() -> None:
 def test_reduce_money() -> None:
     bank = Bank()
     reduced = bank.reduce(Money.dollar(1), "USD")
+    assert reduced == Money.dollar(1)
+
+
+def test_add_rate_to_bank() -> None:
+    bank = Bank()
+    bank.add_rate("CHF", "USD", 2)
+    assert bank.rates.get(Pair("CHF", "USD")) == 2
+
+
+def test_reduce_differnt_currency() -> None:
+    bank = Bank()
+    bank.add_rate("CHF", "USD", 2)
+    reduced = bank.reduce(Money.frank(2), "USD")
+    print(reduced.amount)
+    print(reduced.currency)
     assert reduced == Money.dollar(1)
