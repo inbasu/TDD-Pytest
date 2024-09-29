@@ -13,6 +13,10 @@ class Expression(metaclass=ABCMeta):
     def reduce(self, bank: "Bank", to: str) -> "Money":
         pass
 
+    @abstractmethod
+    def times(self, multipier: int) -> "Expression":
+        pass
+
 
 class Money(Expression):
 
@@ -51,6 +55,9 @@ class Sum(Expression):
         addend = self.addend.reduce(bank, to)
         amount: float = augend.amount + addend.amount
         return Money(amount, to)
+
+    def times(self, multipier: int) -> Expression:
+        return Sum(self.augend.times(multipier), self.addend.times(multipier))
 
 
 @dataclass
