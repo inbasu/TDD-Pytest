@@ -3,6 +3,12 @@ from dataclasses import dataclass
 
 
 class Expression(metaclass=ABCMeta):
+
+    def __add__(self, other: object) -> "Expression":
+        if not isinstance(other, Expression):
+            return NotImplemented
+        return Sum(self, other)
+
     @abstractmethod
     def reduce(self, bank: "Bank", to: str) -> "Money":
         pass
@@ -14,11 +20,6 @@ class Money(Expression):
         self.amount = amount
         self.currency = currency
 
-    def __add__(self, other: object) -> Expression:
-        if not isinstance(other, Money):
-            return NotImplemented
-        return Sum(self, other)
-
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Money) or self.currency != other.currency:
             return NotImplemented
@@ -28,7 +29,7 @@ class Money(Expression):
         rate = bank.rate(self.currency, to)
         return Money(self.amount / rate, to)
 
-    def times(self, multipier: int) -> "Money":
+    def times(self, multipier: int) -> Expression:
         return Money(self.amount * multipier, self.currency)
 
     @classmethod
@@ -41,12 +42,14 @@ class Money(Expression):
 
 
 class Sum(Expression):
-    def __init__(self, augend: Money, addend: Money) -> None:
+    def __init__(self, augend: Expression, addend: Expression) -> None:
         self.augend = augend
         self.addend = addend
 
     def reduce(self, bank: "Bank", to: str) -> Money:
-        amount: float = self.augend.amount + self.addend.amount
+        augend = self.augend.reduce(bank, to)
+        addend = self.addend.reduce(bank, to)
+        amount: float = augend.amount + addend.amount
         return Money(amount, to)
 
 

@@ -53,6 +53,11 @@ def test_reduce_differnt_currency() -> None:
     bank = Bank()
     bank.add_rate("CHF", "USD", 2)
     reduced = bank.reduce(Money.frank(2), "USD")
-    print(reduced.amount)
-    print(reduced.currency)
     assert reduced == Money.dollar(1)
+
+
+def test_mixed_currency_add() -> None:
+    bank = Bank()
+    bank.add_rate("CHF", "USD", 2)
+    reduced = bank.reduce(Money.dollar(5) + Money.frank(10), "USD")
+    assert reduced == Money.dollar(10)
